@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🔐 Seguridad Informática & Criptografía — Slides</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.3/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      min-height: 100dvh;
+      background: linear-gradient(135deg, #18181b 60%, #1e293b 100%);
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100dvh;
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      overflow-x: hidden;
+    }
+    #slides {
+      height: 100dvh;
+      min-height: 100dvh;
+      width: 100vw;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide {
+      height: 100dvh;
+      min-height: 100dvh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.7s cubic-bezier(.4,0,.2,1);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.98) translateY(12px);
+      box-sizing: border-box;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 20;
+    }
+    .slide-content {
+      background: rgba(24,24,27,0.85);
+      box-shadow: 0 4px 32px 0 rgba(16,24,40,0.22), 0 1.5px 4px 0 rgba(0,0,0,0.15);
+      border-radius: 2.1rem;
+      border: 1.5px solid rgba(124,58,237,0.22);
+      backdrop-filter: blur(16px);
+      max-width: 850px;
+      width: 96vw;
+      padding: 3.5rem 2.7rem;
+      margin: 0 auto;
+      color: #f1f5f9;
+      position: relative;
+      transition: box-shadow 0.4s;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: stretch;
+      min-height: 360px;
+      padding: 20px;
+    }
+    .accent { color: #7c3aed; }
+    .slide-content:hover { box-shadow: 0 8px 48px 0 rgba(124,58,237,0.25), 0 3px 8px 0 rgba(0,0,0,0.19);}
+    .slide-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(0deg, #18181b 90%, #1e293b00 100%);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      z-index: 50;
+      padding: 1.2rem 2.1rem 1.6rem 2.1rem;
+      width: 100vw;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+    .slide-nav button {
+      pointer-events: auto;
+      flex: 1 1 0;
+      max-width: 260px;
+      min-width: 35vw;
+      margin: 0 0.2rem;
+    }
+    .btn-shadcn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-weight: 600;
+      border-radius: 0.85rem;
+      background: linear-gradient(95deg, #7c3aed 60%, #6366f1 100%);
+      color: #fff;
+      box-shadow: 0 2px 12px 0 rgba(124,58,237,0.09);
+      padding: 1.08rem 2.1rem;
+      border: none;
+      font-size: 1.13rem;
+      transition: background 0.18s, transform 0.15s;
+      outline: none;
+      justify-content: center;
+      letter-spacing: 0.01em;
+    }
+    .btn-shadcn:active { transform: scale(0.97);}
+    .btn-shadcn:focus { box-shadow: 0 0 0 2px #a78bfa;}
+    .btn-shadcn[disabled] { opacity: 0.35; pointer-events: none;}
+    a.btn-shadcn { text-decoration: none; }
+    /* Quiz btn arriba */
+    #quiz-btn-fixed {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0; right: 0;
+      width: 100vw;
+      z-index: 90;
+      justify-content: flex-end;
+      padding: 1.3rem 2.5rem 0.7rem 0.5rem;
+      pointer-events: none;
+    }
+    #quiz-btn-fixed .btn-shadcn {
+      pointer-events: auto;
+      background: linear-gradient(90deg,#34d399 60%,#7c3aed 100%);
+      font-size: 1.12rem;
+      padding: 0.78rem 1.4rem;
+      border-radius: 0.7rem;
+      box-shadow: 0 2px 16px 0 #34d39933;
+    }
+    #quiz-btn-fixed .btn-shadcn svg { margin-left: 0.5rem; }
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .slide-content { max-width: 100vw; }
+      #quiz-btn-fixed { padding-right: 0.7rem;}
+    }
+    @media (max-width: 640px) {
+      .slide-content { padding: 1.7rem 0.7rem 1.6rem 0.7rem; font-size: 1.03rem; max-width: 100vw;}
+      h1, h2 { font-size: 1.11rem !important; }
+      .slide-content ul { padding-left: 1.2rem !important;}
+      .slide-content table { font-size: 0.93rem; }
+      #quiz-btn-fixed{ padding-right:0.15rem; }
+      .slide-nav { padding: 0.7rem 0.2rem 0.7rem 0.2rem;}
+    }
+    @media (max-width:420px) {
+      .slide { padding: 1.2rem ;width: 70vw;}
+      .slide-content { border-radius: 0.5rem; padding:  1rem;  width: 80vw;}
+      .slide-nav { padding: 0.3rem 0.1rem 0.6rem 0.1rem;}
+    }
+    /* Custom badge for slide titles */
+    .slide-badge {
+      display: inline-block;
+      background: linear-gradient(90deg,#0ea5e9 40%,#38bdf8 100%);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 0.5em;
+      padding: 0.17em 0.7em 0.16em 0.7em;
+      font-size: 1.17em;
+      margin-right: 0.42em;
+      box-shadow:0 2px 8px 0 #0ea5e944;
+      letter-spacing: 0.01em;
+      vertical-align: 0.07em;
+    }
+    .slide-content .vnt { color: #7c3aed; font-weight: 600;}
+  </style>
+</head>
+<body>
+  <div id="quiz-btn-fixed">
+    <a href="quiz.html" class="btn-shadcn" tabindex="0" aria-label="Ir al Quiz">
+      Ir al Quiz
+      <svg width="22" height="22" fill="none" stroke="currentColor" style="vertical-align:-3px;"><path d="M5 12h12m0 0l-5-5m5 5l-5 5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+  <div id="slides">
+    <section class="slide" id="slide-2">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">1️⃣ Seguridad: Distribuida vs Centralizada</h2>
+        <ul class="list-disc pl-6 mb-3">
+          <li><span class="font-semibold">Distribuida:</span> Protección en cada parte de la red (laptops, routers, firewalls).</li>
+          <li><span class="font-semibold">Centralizada:</span> Control desde servidores centrales (políticas de acceso, actualizaciones).</li>
+        </ul>
+        <div class="rounded-xl bg-slate-800/60 border border-slate-700 px-4 py-2 mt-2 shadow-inner">
+          <span class="font-semibold accent">Ventaja:</span> Mayor control, respuesta más rápida a amenazas y adaptación dinámica.
+        </div>
+      </div>
+    </section>
+    <section class="slide" id="slide-3">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">2️⃣ ¿Qué es la Criptografía?</h2>
+        <p class="mb-3">Técnica para transformar información en un formato ilegible para protegerla.</p>
+        <ul class="list-disc pl-6">
+          <li><b>Confidencialidad:</b> Solo quien tiene la clave puede leer el mensaje.</li>
+          <li><b>Integridad:</b> Evita alteraciones del mensaje.</li>
+          <li><b>Autenticación:</b> Verifica la identidad del emisor.</li>
+          <li><b>No repudio:</b> El emisor no puede negar haber enviado el mensaje.</li>
+        </ul>
+      </div>
+    </section>
+    <section class="slide" id="slide-4">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">3️⃣ Criptología = Criptografía + Criptoanálisis</h2>
+        <ul class="list-disc pl-6">
+          <li><b>Criptografía:</b> Diseña sistemas seguros.</li>
+          <li><b>Criptoanálisis:</b> Intenta romper o vulnerar esos sistemas sin conocer la clave.</li>
+        </ul>
+      </div>
+    </section>
+    <section class="slide" id="slide-5">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">4️⃣ Tipos de Cifrado</h2>
+        <div class="mb-2">
+          <b>✅ Clásico:</b>
+          <ul class="list-disc pl-6">
+            <li><b>César:</b> Sustituye letras por otras con desplazamiento fijo.</li>
+            <li><b>Vigenère:</b> Usa múltiples alfabetos (clave más fuerte).</li>
+            <li><b>Transposición:</b> Reordena el mensaje sin cambiar las letras.</li>
+          </ul>
+        </div>
+        <div>
+          <b>✅ Moderno:</b>
+          <p>Basado en claves y algoritmos matemáticos complejos.</p>
+        </div>
+      </div>
+    </section>
+    <section class="slide" id="slide-6">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🔑 Simétrico vs 🔓 Asimétrico</h2>
+        <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3 mb-2 shadow-inner">
+          <b>Cifrado Simétrico</b>
+          <ul class="list-disc pl-6">
+            <li>Misma clave para cifrar y descifrar, rápido y eficiente.</li>
+            <li>Ej: DES, AES, RC4, IDEA.</li>
+            <li><b>Ventaja:</b> Alto rendimiento.</li>
+            <li><b>Desventaja:</b> Si la clave se filtra, toda la comunicación queda expuesta.</li>
+          </ul>
+        </div>
+        <div class="rounded-xl bg-slate-800/60 border border-slate-700 p-3 shadow-inner">
+          <b>Cifrado Asimétrico</b>
+          <ul class="list-disc pl-6">
+            <li>Clave pública para cifrar, privada para descifrar.</li>
+            <li>Ej: RSA, ElGamal, ECC.</li>
+            <li><b>Ventaja:</b> Seguro para intercambio de claves y autenticación.</li>
+            <li><b>Desventaja:</b> Más lento que el simétrico.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide" id="slide-7">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🔐 PGP y Firma Digital</h2>
+        <div class="mb-3">
+          <b>PGP (Pretty Good Privacy):</b> Sistema híbrido (asimétrico para la clave, simétrico para el mensaje). Usado en emails seguros.
+        </div>
+        <div class="mb-3">
+          <b>Firma digital:</b>
+          <ul class="list-disc pl-6">
+            <li>Genera un hash del mensaje.</li>
+            <li>El hash se cifra con la clave privada del emisor.</li>
+            <li>El receptor verifica con la clave pública.</li>
+            <li><b>Garantiza:</b> Autenticidad, integridad y no repudio.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide" id="slide-8">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">5️⃣ Técnicas de Cifrado</h2>
+        <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm mb-2 border-separate border-spacing-y-2">
+          <thead>
+            <tr class="text-slate-300">
+              <th class="px-2 py-1">Técnica</th>
+              <th class="px-2 py-1">Descripción</th>
+              <th class="px-2 py-1">Fortalezas</th>
+              <th class="px-2 py-1">Debilidades</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="bg-slate-900/60">
+              <td class="px-2 py-1 font-semibold">XOR / Vernam</td>
+              <td class="px-2 py-1">Bit a bit con clave aleatoria</td>
+              <td class="px-2 py-1">Teóricamente irrompible</td>
+              <td class="px-2 py-1">Clave única y tan larga como el mensaje</td>
+            </tr>
+            <tr class="bg-slate-900/30">
+              <td class="px-2 py-1 font-semibold">AES</td>
+              <td class="px-2 py-1">Por bloques (128, 192, 256 bits)</td>
+              <td class="px-2 py-1">Rápido y fuerte</td>
+              <td class="px-2 py-1">Ninguna conocida si bien implementado</td>
+            </tr>
+            <tr class="bg-slate-900/60">
+              <td class="px-2 py-1 font-semibold">RSA</td>
+              <td class="px-2 py-1">Asimétrico, factorización</td>
+              <td class="px-2 py-1">Muy seguro</td>
+              <td class="px-2 py-1">Lento en grandes volúmenes</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+    <section class="slide" id="slide-9">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">6️⃣ Principios Criptográficos Fundamentales</h2>
+        <ul class="list-disc pl-6 mb-2">
+          <li><b>Redundancia:</b> Hashes, checksums para detectar manipulación.</li>
+          <li><b>Marcas temporales:</b> Validan mensajes en un tiempo específico.</li>
+          <li><b>Clave larga y aleatoria:</b> Más difícil de romper.</li>
+          <li><b>Período de la clave:</b> Evitar repeticiones en cifrado por flujo.</li>
+        </ul>
+      </div>
+    </section>
+    <section class="slide" id="slide-10">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">7️⃣ Algoritmos y Complejidad</h2>
+        <ul class="list-disc pl-6 mb-2">
+          <li><b>Clase P:</b> Algoritmos rápidos (polinomiales).</li>
+          <li><b>Clase NP:</b> Problemas difíciles (exponenciales), ideales para cifrado.</li>
+        </ul>
+        <div>
+          <b>Seguridad basada en:</b>
+          <ul class="list-disc pl-8">
+            <li>Factorización de grandes números (RSA).</li>
+            <li>Logaritmos discretos (ElGamal).</li>
+            <li>Curvas elípticas (ECC).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <section class="slide" id="slide-11">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">⚔️ Vulnerabilidades y Ataques</h2>
+        <ul class="list-disc pl-6">
+          <li><b>Criptoanálisis por frecuencia:</b> Usado en cifrados clásicos.</li>
+          <li><b>Fuerza bruta:</b> Intentan todas las combinaciones posibles.</li>
+          <li><b>Man-in-the-Middle:</b> Intercepta y modifica el mensaje.</li>
+          <li><b>KRACK:</b> Rompe WPA2 explotando intercambio de claves.</li>
+        </ul>
+      </div>
+    </section>
+    <section class="slide" id="slide-12">
+      <div class="slide-content text-center">
+        <h2 class="text-3xl font-bold mb-4 accent">🧠 Conclusiones Clave</h2>
+        <ul class="list-disc pl-10 text-left mb-4">
+          <li>La criptografía es fundamental en la seguridad informática moderna.</li>
+          <li>Un buen sistema combina cifrado, autenticación y gestión de claves.</li>
+          <li>La educación en prácticas seguras es esencial: contraseñas fuertes, VPN, no confiar en redes públicas.</li>
+        </ul>
+        <div class="text-slate-400 mt-4">¡Gracias por tu atención!</div>
+      </div>
+    </section>
+    <section class="slide" id="slide-13">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🔐 1. Gestión de claves criptográficas</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Protocolos para intercambio seguro de claves (<b>ej. Diffie-Hellman</b>).</li>
+          <li>Infraestructura de Clave Pública (<b>PKI</b>).</li>
+          <li>Certificados digitales (<b>X.509</b>).</li>
+          <li>Autoridades Certificadoras (<b>CA</b>) y Revocación de certificados (<b>CRL/OCSP</b>).</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 14: Autenticación y control de acceso -->
+    <section class="slide" id="slide-14">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🔎 2. Autenticación y control de acceso</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Factores de autenticación: algo que sabes, tienes o eres.</li>
+          <li>Métodos: contraseñas, tokens, biometría, autenticación multifactor (<b>MFA</b>).</li>
+          <li>Protocolos: <b>Kerberos, OAuth2, OpenID Connect, SAML</b>.</li>
+          <li>Modelos de acceso: <b>DAC, MAC, RBAC, ABAC</b>.</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 15: Seguridad en redes -->
+    <section class="slide" id="slide-15">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🧱 3. Seguridad en redes</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Modelos de red segura (<b>DMZ, segmentación</b>).</li>
+          <li>Firewalls, IDS/IPS, VPN.</li>
+          <li>Protocolos seguros: <b>HTTPS, SSL/TLS, SSH, IPsec</b>.</li>
+          <li>Sniffing, spoofing, ARP poisoning, ataques <b>MITM</b>.</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 16: Malware y amenazas persistentes -->
+    <section class="slide" id="slide-16">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🦠 4. Malware y amenazas persistentes</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Tipos: virus, gusanos, troyanos, ransomware, spyware, rootkits.</li>
+          <li>Técnicas de evasión y detección (obfuscation, polimorfismo).</li>
+          <li>Análisis de malware (estático vs dinámico).</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 17: Seguridad en aplicaciones web -->
+    <section class="slide" id="slide-17">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🧪 5. Seguridad en aplicaciones web</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Vulnerabilidades <b>OWASP Top 10</b>:</li>
+          <ul class="list-disc pl-10">
+            <li>Inyección SQL</li>
+            <li>Cross-Site Scripting (XSS)</li>
+            <li>CSRF</li>
+            <li>Inseguridad en autenticación y sesiones</li>
+          </ul>
+          <li>Pruebas de penetración (<b>pentesting</b>) web.</li>
+          <li>Hardening de aplicaciones.</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 18: Seguridad en dispositivos móviles -->
+    <section class="slide" id="slide-18">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">📲 6. Seguridad en dispositivos móviles</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Gestión de dispositivos (<b>MDM</b>).</li>
+          <li>Seguridad en iOS vs Android.</li>
+          <li>Aplicaciones móviles seguras: permisos, cifrado local, validación.</li>
+          <li>Amenazas comunes: apps maliciosas, phishing, interceptación de red.</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 19: Ataques y defensa ante DDoS -->
+    <section class="slide" id="slide-19">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">💥 7. Ataques y defensa ante DDoS</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Tipos de DDoS: volumétricos, de protocolo, capa aplicación.</li>
+          <li>Servicios de mitigación (<b>Cloudflare, Akamai</b>).</li>
+          <li>Técnicas de defensa: rate limiting, firewalls inteligentes, scrubbing centers.</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 20: Ingeniería social -->
+    <section class="slide" id="slide-20">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🧠 8. Ingeniería social</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Técnicas: phishing, smishing, vishing, pretexting, baiting.</li>
+          <li>Campañas de concienciación.</li>
+          <li>Simulaciones de ataques (<b>red team / blue team</b>).</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 21: Criptografía avanzada -->
+    <section class="slide" id="slide-21">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🧮 9. Criptografía avanzada</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Criptografía homomórfica.</li>
+          <li>Criptografía post-cuántica (lattice-based, hash-based, etc.).</li>
+          <li>Blockchain y criptografía distribuida.</li>
+          <li>Zero Knowledge Proofs (<b>ZKP</b>).</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Slide 22: Cumplimiento y normativas -->
+    <section class="slide" id="slide-22">
+      <div class="slide-content">
+        <h2 class="text-3xl font-bold mb-4 accent">🧾 10. Cumplimiento y normativas</h2>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Normas: <b>ISO 27001, NIST, COBIT</b>.</li>
+          <li>Regulaciones: <b>GDPR, HIPAA, PCI-DSS</b>.</li>
+          <li>Gestión de riesgos y auditoría de seguridad.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <div class="slide-nav">
+    <button id="prevBtn" class="btn-shadcn" aria-label="Anterior"><svg width="20" height="20" fill="none" stroke="currentColor"><path d="M13 5l-5 5 5 5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Anterior</button>
+    <button id="nextBtn" class="btn-shadcn" aria-label="Siguiente">Siguiente<svg width="20" height="20" fill="none" stroke="currentColor"><path d="M7 5l5 5-5 5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+<script>
+    // Slide animation logic
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    let current = 0;
+
+    function activateSlide(idx) {
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active','prev','next');
+        slide.style.zIndex = i === idx ? 20 : 5;
+        if(i === idx) slide.classList.add('active');
+        else if(i < idx) slide.classList.add('prev');
+        else slide.classList.add('next');
+      });
+      document.getElementById('prevBtn').disabled = (idx === 0);
+      document.getElementById('nextBtn').disabled = (idx === slides.length - 1);
+    }
+    activateSlide(current);
+
+    document.getElementById('nextBtn').onclick = () => {
+      if (current < slides.length - 1) {
+        activateSlide(++current);
+      }
+    };
+    document.getElementById('prevBtn').onclick = () => {
+      if (current > 0) {
+        activateSlide(--current);
+      }
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        if (current < slides.length - 1) { activateSlide(++current); }
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        if (current > 0) { activateSlide(--current); }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Interactivo: Criptografía, Seguridad y Hacking</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.3/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #18181b 60%, #1e293b 100%);
+      color: #f1f5f9;
+    }
+    .quiz-card {
+      background: rgba(24, 24, 27, 0.92);
+      border-radius: 1.5rem;
+      padding: 2.2rem 2rem 1.5rem 2rem;
+      max-width: 680px;
+      margin: 3vw auto 0 auto;
+      box-shadow: 0 4px 32px 0 rgba(16, 24, 40, 0.22), 0 1.5px 4px 0 rgba(0,0,0,0.16);
+      border: 1px solid rgba(39, 39, 42, 0.45);
+      backdrop-filter: blur(14px);
+      position: relative;
+      overflow: hidden;
+      min-height: 480px;
+    }
+    .accent { color: #7c3aed; }
+    .btn-shadcn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      background: linear-gradient(95deg, #7c3aed 60%, #6366f1 100%);
+      color: #fff;
+      box-shadow: 0 2px 12px 0 rgba(124,58,237,0.08);
+      padding: 0.65rem 1.2rem;
+      border: none;
+      font-size: 1.05rem;
+      transition: background 0.18s, transform 0.12s;
+      outline: none;
+    }
+    .btn-shadcn:active { transform: scale(0.97);}
+    .btn-shadcn[disabled] { opacity: 0.38;}
+    .choice, .mchoice {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.85rem;
+      border: 2px solid #6366f1;
+      background: rgba(39, 39, 42, 0.84);
+      font-size: 1rem;
+      font-weight: 500;
+      color: #d1d5db;
+      transition: background 0.18s, color 0.18s, border 0.18s, box-shadow 0.13s;
+      outline: none;
+      cursor: pointer;
+    }
+    .choice.selected, .mchoice.selected {
+      background: linear-gradient(90deg, #7c3aed 70%, #6366f1 100%);
+      color: #fff;
+      border-color: #a78bfa;
+      box-shadow: 0 2px 12px 0 #7c3aed22;
+    }
+    .choice.is-correct, .mchoice.is-correct {
+      background: linear-gradient(90deg, #16a34a 80%, #4ade80 100%) !important;
+      color: #fff !important;
+      border-color: #4ade80 !important;
+      animation: correctAnim 0.4s;
+    }
+    .choice.is-wrong, .mchoice.is-wrong {
+      background: linear-gradient(90deg, #dc2626 80%, #f87171 100%) !important;
+      color: #fff !important;
+      border-color: #f87171 !important;
+      animation: wrongAnim 0.4s;
+    }
+    @keyframes correctAnim {
+      0% { box-shadow: 0 0 0 0 #16a34a66;}
+      60% { box-shadow: 0 0 0 12px #16a34a33;}
+      100% { box-shadow: 0 0 0 0 #16a34a00;}
+    }
+    @keyframes wrongAnim {
+      0% { box-shadow: 0 0 0 0 #dc262666;}
+      60% { box-shadow: 0 0 0 12px #dc262633;}
+      100% { box-shadow: 0 0 0 0 #dc262600;}
+    }
+    .answer-explanation {
+      border-radius: 0.9rem;
+      background: linear-gradient(95deg, rgba(39,39,42,0.7) 60%, #6366f1 100%);
+      padding: 1.1rem 1rem 1.1rem 1.1rem;
+      margin-top: 1rem;
+      color: #e0e7ef;
+      border: 1.5px solid #6366f1;
+      font-size: 1.08rem;
+      box-shadow: 0 2px 12px 0 rgba(124,58,237,0.06);
+      animation: fadeIn .6s;
+    }
+    .answer-explanation .badge {
+      display: inline-block;
+      background: linear-gradient(90deg,#22d3ee 80%,#6366f1 100%);
+      color: #18181b;
+      font-weight: 600;
+      border-radius: 0.6rem;
+      padding: 0.15em 0.7em;
+      margin-bottom: 0.6em;
+      margin-right: 0.7em;
+      font-size: 0.98em;
+      letter-spacing: 0.01em;
+    }
+    .answer-explanation .badge.right {
+      background: linear-gradient(90deg,#16a34a 80%,#4ade80 100%);
+      color:#fff;
+    }
+    .answer-explanation .badge.wrong {
+      background: linear-gradient(90deg,#dc2626 80%,#f87171 100%);
+      color:#fff;
+    }
+    @keyframes fadeIn {
+      from {opacity:0;transform:translateY(16px) scale(0.98);}
+      to   {opacity:1;transform:translateY(0) scale(1);}
+    }
+    .fade-slide { animation: fadeIn .6s; }
+    /* Pregunta y botones en fila (responsive) */
+    .question-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .question-text {
+      flex: 1 1 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      min-width: 220px;
+      margin-bottom: 0;
+      color: #e0e7ef;
+    }
+    .quiz-nav-btn {
+      min-width: 112px;
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+    @media (max-width: 640px) {
+      .quiz-card { padding: 1rem 0.5rem; }
+      .question-row { flex-direction: column; align-items: stretch; gap: 0.5rem;}
+      .question-text { font-size: 1rem;}
+      .quiz-nav-btn { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-card" id="quiz-box">
+    <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
+      <a href="index.html" class="btn-shadcn" style="margin-right:0.5rem;">
+        <svg width="20" height="20" fill="none" stroke="currentColor" style="margin-right:0.3rem;vertical-align:-3px;"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Slides
+      </a>
+      <h1 class="text-2xl font-black text-center accent flex-auto" style="min-width:120px;">Quiz Interactivo</h1>
+      <span class="hidden sm:block" style="width:82px;"></span>
+    </div>
+    <div id="qarea"></div>
+    <div id="result" class="text-center mt-4 hidden"></div>
+  </div>
+<script>
+const quiz = [
+// 1. OPCIÓN MÚLTIPLE (Selección Única)
+{
+  type: "single", q: "¿Qué significa \"seguridad distribuida en la red\"?",
+  opts: [
+    "a) Depender de un único firewall central",
+    "b) Protección en cada componente de la red (routers, switches, etc.)",
+    "c) Centralizar toda la seguridad en un servidor",
+    "d) Ignorar la seguridad en dispositivos finales"
+  ],
+  a: 1
+},
+{
+  type: "single", q: "El cifrado de Vernam se basa en:",
+  opts: [
+    "a) Sustitución de letras",
+    "b) Operación XOR con una clave aleatoria de un solo uso",
+    "c) Transposición de columnas",
+    "d) Algoritmos de clave pública"
+  ],
+  a: 1
+},
+{
+  type: "single", q: "¿Cuál es el principal inconveniente del cifrado por sustitución (ej. César)?",
+  opts: [
+    "a) Es matemáticamente seguro",
+    "b) Una letra siempre se cifra igual, facilitando ataques estadísticos",
+    "c) Requiere claves muy largas",
+    "d) No usa operaciones matemáticas"
+  ],
+  a: 1
+},
+{
+  type: "single", q: "WPA3 mejora la seguridad respecto a WPA2 mediante:",
+  opts: [
+    "a) Uso de RC4",
+    "b) AES-256 y SAE (Simultaneous Authentication of Equals)",
+    "c) Claves compartidas estáticas",
+    "d) Eliminación del cifrado"
+  ],
+  a: 1
+},
+{
+  type: "single", q: "En un ataque DDoS, ¿qué es una \"botnet\"?",
+  opts: [
+    "a) Un firewall avanzado",
+    "b) Dispositivos infectados controlados por un atacante",
+    "c) Una red privada virtual (VPN)",
+    "d) Un protocolo de encriptación"
+  ],
+  a: 1
+},
+// 2. SELECCIÓN MÚLTIPLE (Varias Respuestas Correctas)
+{
+  type: "multi", q: "Seleccione los principios de la ingeniería social:",
+  opts: ["Autoridad", "Urgencia", "Cifrado AES", "Reciprocidad"],
+  a: [0,1,3]
+},
+{
+  type: "multi", q: "¿Cuáles son componentes de un criptosistema? (Seleccione 2):",
+  opts: ["Firewall", "Cifrador", "Descifrador", "Router"],
+  a: [1,2]
+},
+{
+  type: "multi", q: "Herramientas usadas en hacking wireless (Seleccione 3):",
+  opts: ["Aircrack-ng", "Wireshark", "Metasploit", "Excel"],
+  a: [0,1,2]
+},
+{
+  type: "multi", q: "Vulnerabilidades de WEP (Seleccione 2):",
+  opts: ["Claves estáticas", "Uso de AES-256", "Fácil de romper con ataques estadísticos", "Autenticación multifactor"],
+  a: [0,2]
+},
+{
+  type: "multi", q: "Métodos para prevenir ataques DDoS (Seleccione 2):",
+  opts: ["Usar redes CDN", "Desactivar el firewall", "Ignorar el tráfico sospechoso", "Limitar solicitudes por IP"],
+  a: [0,3]
+},
+// 3. COMPLETAR
+{
+  type: "fill", q: "El cifrado __________ utiliza una clave pública para cifrar y una privada para descifrar.", ans: "asimétrico"
+},
+{
+  type: "fill", q: "En el cifrado de Vigenère, la clave se repite para sumarse __________ al mensaje.", ans: "módulo 26"
+},
+{
+  type: "fill", q: "El ataque __________ explota vulnerabilidades en WPA2 para interceptar datos sin la contraseña.", ans: "KRACK"
+},
+{
+  type: "fill", q: "La __________ es la ciencia que estudia los métodos para romper códigos sin conocer la clave.", ans: "criptoanálisis"
+},
+{
+  type: "fill", q: "Un ataque __________ implica crear un punto de acceso falso para robar datos.", ans: "Evil Twin"
+},
+// 4. CONCEPTUALES
+{
+  type: "long", q: "Explique la diferencia entre criptografía simétrica y asimétrica.",
+  ans: "La criptografía simétrica usa la misma clave para cifrar y descifrar, mientras que la asimétrica usa un par de claves (pública y privada)."
+},
+{
+  type: "long", q: "¿Por qué el cifrado de Vernam se considera \"matemáticamente seguro\"?",
+  ans: "Porque si la clave es verdaderamente aleatoria, de un solo uso y tan larga como el mensaje, es imposible de romper matemáticamente."
+},
+{
+  type: "long", q: "Describa un ataque Man-in-the-Middle en redes Wi-Fi.",
+  ans: "El atacante se posiciona entre el cliente y el punto de acceso, interceptando y modificando las comunicaciones."
+},
+{
+  type: "long", q: "¿Cómo funciona el algoritmo RSA en cifrado de clave pública?",
+  ans: "RSA se basa en la dificultad de factorizar números primos grandes. Usa dos claves: una pública para cifrar y una privada para descifrar."
+},
+{
+  type: "long", q: "Mencione tres buenas prácticas para proteger dispositivos móviles.",
+  ans: "Actualizar software, usar autenticación de dos factores, cifrar datos sensibles."
+},
+// 5. CASOS PRÁCTICOS
+{
+  type: "long", q: "Si un mensaje cifrado con César (desplazamiento +3) es \"KRPH\", ¿cuál es el texto original?",
+  ans: "HOME (K→H, R→O, P→M, H→E)"
+},
+{
+  type: "long", q: "Dada la clave \"CIFRA\" y el mensaje \"HOLA\" en Vigenère, calcule el criptograma (usando A=0, B=1...).",
+  ans: "NVTH (H+C=N, O+I=V, L+F=T, A+R=H)"
+},
+{
+  type: "long", q: "En un ataque DDoS, ¿qué acción tomaría si su servidor recibe 1 millón de solicitudes por segundo?",
+  ans: "Implementar limitación de tráfico, usar CDN, activar filtros anti-DDoS"
+},
+{
+  type: "long", q: "¿Cómo identificaría un correo de phishing?",
+  ans: "Verificar remitente, URL sospechosas, errores gramaticales, solicitudes urgentes de información personal"
+},
+{
+  type: "long", q: "Si detecta un AP falso en una cafetería, ¿qué medidas tomaría?",
+  ans: "No conectarse, reportar a autoridades, advertir a otros usuarios"
+},
+// 6. COMPARACIÓN
+{
+  type: "long", q: "Compare WEP vs. WPA3 en términos de cifrado y autenticación.",
+  ans: "WEP usa RC4 con claves estáticas (inseguro), WPA3 usa AES-256 con SAE (muy seguro)"
+},
+{
+  type: "long", q: "Diferencias entre hacking ético y malicioso en redes wireless.",
+  ans: "Hacking ético: autorizado, para mejorar seguridad. Malicioso: sin autorización, con fines criminales"
+},
+{
+  type: "long", q: "Ventajas y desventajas de cifrado en flujo vs. cifrado en bloque.",
+  ans: "Flujo: más rápido, procesa bit a bit. Bloque: más seguro, procesa bloques fijos de datos"
+},
+// 7. SEGURIDAD AVANZADA
+{
+  type: "long", q: "¿Por qué WPA2 es vulnerable al ataque KRACK?",
+  ans: "KRACK explota el protocolo de handshake de WPA2, permitiendo reinstalar claves y descifrar tráfico"
+},
+{
+  type: "long", q: "¿Cómo protege PGP la confidencialidad e integridad de un mensaje?",
+  ans: "PGP combina cifrado simétrico y asimétrico, más firmas digitales para garantizar confidencialidad e integridad"
+},
+// 8. Protocolos de Seguridad
+{
+  type: "single", q: "¿Qué protocolo reemplaza a SSL/TLS versiones antiguas?",
+  opts: [
+    "a) HTTP",
+    "b) TLS 1.3",
+    "c) FTP",
+    "d) SMTP"
+  ],
+  a: 1
+},
+{
+  type: "single", q: "El protocolo IPSec opera en qué capa del modelo OSI:",
+  opts: [
+    "a) Física",
+    "b) Enlace",
+    "c) Red",
+    "d) Aplicación"
+  ],
+  a: 2
+},
+{
+  type: "single", q: "En una VPN, ¿qué significa \"tunneling\"?",
+  opts: [
+    "a) Crear agujeros en firewalls",
+    "b) Encapsular datos cifrados dentro de otros protocolos",
+    "c) Usar cables subterráneos",
+    "d) Conexiones punto a punto"
+  ],
+  a: 1
+},
+// 9. Ataques específicos
+{
+  type: "single", q: "Un ataque de \"Rainbow Table\" se usa para:",
+  opts: [
+    "a) Romper hashes mediante tablas precalculadas",
+    "b) Colorear interfaces",
+    "c) Crear gráficos",
+    "d) Analizar espectros"
+  ],
+  a: 0
+},
+{
+  type: "single", q: "¿Qué es un ataque de \"DNS Spoofing\"?",
+  opts: [
+    "a) Acelerar consultas DNS",
+    "b) Redirigir tráfico mediante respuestas DNS falsas",
+    "c) Cifrar consultas DNS",
+    "d) Bloquear servidores DNS"
+  ],
+  a: 1
+},
+// 10. Hashing
+{
+  type: "multi", q: "Seleccione las funciones hash criptográficas seguras (Seleccione 2):",
+  opts: ["MD5", "SHA-256", "SHA-1", "SHA-3"],
+  a: [1,3]
+},
+{
+  type: "multi", q: "Propiedades de una función hash criptográfica (Seleccione 3):",
+  opts: ["Resistencia a colisiones", "Reversibilidad", "Función unidireccional", "Avalancha"],
+  a: [0,2,3]
+},
+// 11. Malware (fill)
+{
+  type: "fill", q: "Un __________ es malware que se replica a sí mismo sin necesidad de un programa anfitrión.", ans: "gusano"
+},
+{
+  type: "fill", q: "El malware __________ cifra archivos del usuario y exige pago para el descifrado.", ans: "ransomware"
+},
+{
+  type: "fill", q: "Un __________ es software que aparenta ser legítimo pero contiene código malicioso.", ans: "troyano"
+},
+// 12. Conceptuales Avanzadas
+{
+  type: "long", q: "Explique qué es la \"Perfect Forward Secrecy\" en criptografía.",
+  ans: "Garantiza que si una clave privada se ve comprometida, las sesiones pasadas permanecen seguras porque cada sesión usa claves temporales únicas."
+},
+{
+  type: "long", q: "¿Cómo funciona la autenticación de dos factores (2FA)?",
+  ans: "Combina algo que sabes (contraseña) con algo que tienes (token, SMS) o algo que eres (biometría) para mayor seguridad."
+},
+{
+  type: "long", q: "Describa un ataque de \"Session Hijacking\".",
+  ans: "El atacante captura y usa la sesión activa de un usuario legítimo para obtener acceso no autorizado a servicios web."
+},
+// 13. Prácticos Avanzados
+{
+  type: "single", q: "Si implementa una red empresarial, ¿qué protocolo 802.1X usaría para autenticación?",
+  opts: [
+    "a) EAP-TLS",
+    "b) HTTP",
+    "c) FTP",
+    "d) DHCP"
+  ],
+  a: 0
+},
+{
+  type: "long", q: "En un pentest de red Wi-Fi, ¿qué herramienta usaría para capturar handshakes WPA2?",
+  ans: "Aircrack-ng suite (airodump-ng para captura)"
+},
+{
+  type: "long", q: "Si encuentra que su red tiene un ataque ARP Spoofing, ¿qué contramedida implementaría?",
+  ans: "Implementar ARP binding estático o usar herramientas de detección de ARP spoofing"
+},
+// 14. Comparación Técnica
+{
+  type: "long", q: "Compare cifrado en bloque AES vs. cifrado en flujo ChaCha20.",
+  ans: "AES procesa bloques de 128 bits, muy estándar. ChaCha20 procesa flujo continuo, más eficiente en dispositivos móviles."
+},
+{
+  type: "long", q: "Diferencias entre WAF (Web Application Firewall) y firewall tradicional.",
+  ans: "WAF protege aplicaciones web específicamente (capa 7), firewall tradicional filtra por puertos/IPs (capas 3-4)."
+},
+// 15. Seguridad Móvil
+{
+  type: "single", q: "¿Qué es \"jailbreaking\" en dispositivos iOS?",
+  opts: [
+    "a) Reparar pantalla rota",
+    "b) Eliminar restricciones del sistema operativo",
+    "c) Actualizar iOS",
+    "d) Cambiar operador"
+  ],
+  a: 1
+},
+{
+  type: "multi", q: "Principales riesgos de seguridad en aplicaciones móviles (Seleccione 3):",
+  opts: [
+    "Almacenamiento inseguro",
+    "Pantalla táctil",
+    "Comunicación insegura",
+    "Cámara de alta resolución",
+    "Autenticación débil"
+  ],
+  a: [0,2,4]
+},
+// 16. Forense Digital
+{
+  type: "fill", q: "El proceso de __________ asegura que la evidencia digital no se modifique durante el análisis.", ans: "cadena de custodia"
+},
+{
+  type: "fill", q: "Un __________ es una copia bit a bit de un dispositivo de almacenamiento para análisis forense.", ans: "imagen forense"
+},
+// 17. Esteganografía
+{
+  type: "single", q: "La esteganografía se diferencia de la criptografía en que:",
+  opts: [
+    "a) Es más segura",
+    "b) Oculta la existencia del mensaje secreto",
+    "c) Usa matemáticas complejas",
+    "d) Solo funciona con imágenes"
+  ],
+  a: 1
+},
+{
+  type: "multi", q: "¿En qué tipos de archivos se puede ocultar información con esteganografía? (Seleccione 3):",
+  opts: ["Imágenes", "Audio", "Texto plano", "Video"],
+  a: [0,1,3]
+},
+// 18. Seguridad Empresarial
+{
+  type: "long", q: "Explique el principio de \"Zero Trust\" en seguridad de redes.",
+  ans: "\"Nunca confiar, siempre verificar\" - verificar identidad y autorización para cada acceso, sin importar la ubicación."
+},
+{
+  type: "long", q: "¿Qué es un SOC (Security Operations Center)?",
+  ans: "Centro centralizado que monitorea, detecta, analiza y responde a incidentes de ciberseguridad en tiempo real."
+},
+// 19. Respuesta a Incidentes
+{
+  type: "long", q: "Si detecta un malware en su red, ¿cuáles son los primeros 3 pasos?",
+  ans: "1) Aislar sistemas infectados, 2) Preservar evidencia, 3) Evaluar alcance del compromiso"
+},
+{
+  type: "single", q: "En un ataque de ransomware, ¿debe pagar el rescate?",
+  opts: [
+    "a) Sí, siempre",
+    "b) No recomendado - no garantiza recuperación, financia criminales, y marca como objetivo futuro",
+    "c) Solo si el pago es bajo",
+    "d) Depende del tipo de malware"
+  ],
+  a: 1
+},
+// 20. Integración
+{
+  type: "multi", q: "Ordene por prioridad las medidas de seguridad para una PYME (de mayor a menor):",
+  opts: [
+    "Capacitación empleados",
+    "Backup automatizado",
+    "Firewall",
+    "Antivirus"
+  ],
+  a: [0,1,2,3]
+},
+{
+  type: "long", q: "Diseñe una estrategia de seguridad en capas para proteger una red empresarial pequeña.",
+  ans: "Perímetro: Firewall + IDS/IPS\nRed: Segmentación VLAN + monitoreo\nEndpoint: Antivirus + EDR + cifrado\nAplicación: WAF + autenticación fuerte\nDatos: Cifrado + backup + control acceso\nUsuarios: Capacitación + políticas de seguridad"
+}
+];
+
+let current = 0, userAnswers = Array(quiz.length).fill(null);
+
+function animateSwap(next, dir) {
+  const qarea = document.getElementById("qarea");
+  qarea.classList.remove("fade-slide");
+  void qarea.offsetWidth; // reflow
+  renderQuiz(next);
+  qarea.classList.add("fade-slide");
+}
+
+function renderQuiz(idx = current) {
+  const Q = quiz[idx], ua = userAnswers[idx];
+  let nav = `
+    <button id="prevBtn" class="btn-shadcn quiz-nav-btn mr-2" ${idx===0?'disabled':''}>Anterior</button>
+    <span id="progress" class="font-semibold text-base mx-2" style="min-width:120px;">Pregunta ${idx+1} de ${quiz.length}</span>
+    <button id="nextBtn" class="btn-shadcn quiz-nav-btn ml-2">${idx === quiz.length-1 ? "Finalizar" : "Siguiente"}</button>
+  `;
+  let html = `<div class="question-row">
+    <span class="question-text">${idx+1}. ${Q.q}</span>
+    ${nav}
+  </div>`;
+  // Opciones
+  if(Q.type === "single") {
+    html += Q.opts.map((o,i) =>
+      `<button class="choice${ua===i?' selected':''}" onclick="selectSingle(${i})">${o}</button>`
+    ).join("");
+  } else if(Q.type === "multi") {
+    html += Q.opts.map((o,i) =>
+      `<button class="mchoice${Array.isArray(ua) && ua.includes(i)?' selected':''}" onclick="toggleMulti(${i})">${o}</button>`
+    ).join("");
+    if(Array.isArray(ua) && ua.length)
+      html += `<div class="text-xs mt-1 text-slate-400">Recuerde que debe seleccionar <b>${Q.a.length}</b> opciones.</div>`;
+  } else if(Q.type === "fill") {
+    html += `<input id="fillin" type="text" autocomplete="off" class="w-full px-3 py-2 rounded bg-slate-800 border mt-2" value="${ua||""}" oninput="saveFill(this.value)"/>`;
+  } else if(Q.type === "long") {
+    html += `<textarea id="fillin" class="w-full px-3 py-2 rounded bg-slate-800 border mt-2" rows="3" oninput="saveFill(this.value)">${ua||""}</textarea>`;
+    if(Q.ans) html+= `<div class="mt-2 text-xs text-slate-400 italic">Sugerencia disponible tras responder.</div>`;
+  }
+  if(ua!==null && ua!=="" && (Q.type==="single"||Q.type==="multi"||Q.type==="fill"||Q.type==="long")) {
+    let ok=false;
+    if(Q.type==="single") {
+      ok = (ua===Q.a);
+      html += `
+        <div class="answer-explanation mt-5">
+          <span class="badge ${ok?'right':'wrong'}">${ok?'Correcto':'Incorrecto'}</span>
+          <b>Respuesta correcta:</b> <span class="accent">${Q.opts[Q.a]}</span>
+          ${ok ? "" : `<div class="mt-2 text-slate-300">Tu selección: ${Q.opts[ua]||""}</div>`}
+        </div>`;
+      setTimeout(() => {
+        const btns = document.querySelectorAll('.choice');
+        btns.forEach((btn,i)=>{
+          btn.classList.remove("is-correct","is-wrong");
+          if(i===Q.a)      btn.classList.add("is-correct");
+          if(i===ua && i!==Q.a) btn.classList.add("is-wrong");
+        });
+      }, 60);
+    } else if(Q.type==="multi") {
+      if(Array.isArray(ua) && ua.length===Q.a.length && Q.a.every(j=>ua.includes(j))) ok=true;
+      html += `
+        <div class="answer-explanation mt-5">
+          <span class="badge ${ok?'right':'wrong'}">${ok?'Correcto':'Incorrecto'}</span>
+          <b>Respuestas correctas:</b> <span class="accent">${Q.a.map(i=>Q.opts[i]).join(', ')}</span>
+          ${ok ? "" : `<div class="mt-2 text-slate-300">Tus opciones: ${Array.isArray(ua)?ua.map(i=>Q.opts[i]).join(', '):""}</div>`}
+        </div>`;
+      setTimeout(() => {
+        const btns = document.querySelectorAll('.mchoice');
+        btns.forEach((btn,i)=>{
+          btn.classList.remove("is-correct","is-wrong");
+          if(Q.a.includes(i)) btn.classList.add("is-correct");
+          if(Array.isArray(ua) && ua.includes(i) && !Q.a.includes(i)) btn.classList.add("is-wrong");
+        });
+      }, 60);
+    } else if(Q.type==="fill") {
+      ok = String(ua||"").trim().toLowerCase() === Q.ans.toLowerCase();
+      html += `
+        <div class="answer-explanation mt-5">
+          <span class="badge ${ok?'right':'wrong'}">${ok?'Correcto':'Sugerencia'}</span>
+          <b>Respuesta:</b> <span class="accent">${Q.ans}</span>
+          ${ok ? "" : `<div class="mt-2 text-slate-300">Tu respuesta: <span class="font-semibold">${ua}</span></div>`}
+        </div>
+      `;
+      setTimeout(()=> {
+        const inp = document.getElementById('fillin');
+        if(inp) inp.classList.add(ok ? "border-green-600" : "border-yellow-600");
+      }, 80);
+    } else if(Q.type==="long") {
+      html += `
+        <div class="answer-explanation mt-5">
+          <span class="badge right">Sugerencia</span>
+          <b>Explicación sugerida:</b><br>
+          <span class="accent">${Q.ans.replace(/\n/g, "<br>")}</span>
+        </div>
+        <div class="text-xs mt-2 text-slate-400">Compara tu respuesta con la sugerencia.</div>
+      `;
+    }
+  }
+  document.getElementById("qarea").innerHTML = html;
+  // Botones
+  document.getElementById("prevBtn").onclick = function(){
+    if(current>0) { current--; animateSwap(current,"back"); }
+  };
+  document.getElementById("nextBtn").onclick = function(){
+    if(current<quiz.length-1) {
+      current++;
+      animateSwap(current,"fwd");
+    } else {
+      showResult();
+    }
+  };
+}
+window.selectSingle = function(idx) {
+  userAnswers[current] = idx;
+  animateSwap(current,"single");
+};
+window.toggleMulti = function(idx) {
+  if(!Array.isArray(userAnswers[current])) userAnswers[current]=[];
+  const i = userAnswers[current].indexOf(idx);
+  if(i>-1) userAnswers[current].splice(i,1);
+  else userAnswers[current].push(idx);
+  animateSwap(current,"multi");
+};
+window.saveFill = function(val) {
+  userAnswers[current] = val;
+};
+document.addEventListener("keydown",function(e){
+  if(document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="TEXTAREA") return;
+  if(e.key==="ArrowRight"||e.key==="PageDown") document.getElementById("nextBtn").click();
+  if(e.key==="ArrowLeft"||e.key==="PageUp") document.getElementById("prevBtn").click();
+});
+function showResult() {
+  let correct = 0;
+  quiz.forEach((Q,i)=>{
+    if(Q.type==="single" && userAnswers[i]===Q.a) correct++;
+    else if(Q.type==="multi" && Array.isArray(userAnswers[i]) && userAnswers[i].length===Q.a.length && Q.a.every(j=>userAnswers[i].includes(j))) correct++;
+    else if(Q.type==="fill" && String(userAnswers[i]||"").trim().toLowerCase()===Q.ans.toLowerCase()) correct++;
+  });
+  document.getElementById("quiz-box").innerHTML = `
+    <div class="text-3xl font-bold mb-4 accent text-center">¡Quiz terminado!</div>
+    <div class="text-xl text-center mb-3">Puntaje: <b>${correct} / ${quiz.length}</b></div>
+    <div class="text-slate-300 text-center mb-6">Puedes revisar las respuestas correctas navegando las preguntas.</div>
+    <button class="btn-shadcn mx-auto" onclick="location.reload()">Intentar de nuevo</button>
+  `;
+}
+renderQuiz();
+</script>
+</body>
+</html>
